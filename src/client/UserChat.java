@@ -17,7 +17,7 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
     private JTextArea chatArea;
     private JTextField messageField;
     private JComboBox<String> roomList;
-    private JButton joinButton, leaveButton, sendButton, createButton;
+    private JButton joinButton, leaveButton, sendButton, createButton, updateButton;
     
     public UserChat(String userName) throws RemoteException {
         super();
@@ -47,12 +47,14 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
         leaveButton = new JButton("Sair");
         sendButton = new JButton("Enviar");
         createButton = new JButton("Criar Sala");
+        updateButton = new JButton("Atualizar");
         
         buttonPanel.add(roomList);
         buttonPanel.add(joinButton);
         buttonPanel.add(leaveButton);
         buttonPanel.add(sendButton);
         buttonPanel.add(createButton);
+        buttonPanel.add(updateButton);
         
         bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
         frame.add(bottomPanel, BorderLayout.SOUTH);
@@ -61,6 +63,7 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
         leaveButton.addActionListener(e -> leaveRoom());
         sendButton.addActionListener(e -> sendMessage());
         createButton.addActionListener(e -> createRoom());
+        updateButton.addActionListener(e -> updateRoomList());
         
         frame.setVisible(true);
     }
