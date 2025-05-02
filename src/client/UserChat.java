@@ -8,6 +8,7 @@ import java.awt.*;
 
 import interfaces.*;
 
+
 public class UserChat extends UnicastRemoteObject implements IUserChat {
     private String userName;
     private IServerChat server;
@@ -15,6 +16,7 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
 
     private JFrame frame;
     private JTextArea chatArea;
+    private JLabel currentRoomLabel;
     private JTextField messageField;
     private JComboBox<String> roomList;
     private JButton joinButton, leaveButton, sendButton, createButton, updateButton;
@@ -29,44 +31,75 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
     private void setupGUI() {
         frame = new JFrame("Chat - " + userName);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(500, 400);
+        frame.setSize(700, 500);
+        frame.setLayout(new BorderLayout());
+    
+        // Painel principal dividido em áreas
+        JSplitPane mainSplitPane = new JSplitPane();
+        mainSplitPane.setDividerLocation(200);
+    
+        // --- Painel Esquerdo (Salas) ---
+        JPanel roomPanel = new JPanel(new BorderLayout());
+        roomPanel.setBorder(BorderFactory.createTitledBorder("Salas de Chat"));
         
-        chatArea = new JTextArea();
-        chatArea.setEditable(false);
-        frame.add(new JScrollPane(chatArea), BorderLayout.CENTER);
-        
-        JPanel bottomPanel = new JPanel(new BorderLayout());
-        
-        messageField = new JTextField();
-        bottomPanel.add(messageField, BorderLayout.CENTER);
-        
-        JPanel buttonPanel = new JPanel(new GridLayout(1, 4));
-        
+        // Componentes de salas
         roomList = new JComboBox<>();
+        
+        JPanel roomControlsPanel = new JPanel(new GridLayout(4, 1, 5, 5));
+        roomControlsPanel.add(new JLabel("Sala Atual:"));
+        
+        currentRoomLabel = new JLabel("--");
+        roomControlsPanel.add(currentRoomLabel);
+        
+        roomControlsPanel.add(new JLabel("Salas Disponíveis:"));
+        roomControlsPanel.add(roomList);
+        
+        JPanel roomButtonsPanel = new JPanel(new GridLayout(4, 1, 5, 5));
         joinButton = new JButton("Entrar");
         leaveButton = new JButton("Sair");
-        sendButton = new JButton("Enviar");
-        createButton = new JButton("Criar Sala");
+        createButton = new JButton("Criar Nova");
         updateButton = new JButton("Atualizar");
-        
-        buttonPanel.add(roomList);
-        buttonPanel.add(joinButton);
-        buttonPanel.add(leaveButton);
-        buttonPanel.add(sendButton);
-        buttonPanel.add(createButton);
-        buttonPanel.add(updateButton);
-        
-        bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
-        frame.add(bottomPanel, BorderLayout.SOUTH);
-        
+
         joinButton.addActionListener(e -> joinRoom());
         leaveButton.addActionListener(e -> leaveRoom());
-        sendButton.addActionListener(e -> sendMessage());
         createButton.addActionListener(e -> createRoom());
         updateButton.addActionListener(e -> updateRoomList());
         
+        roomButtonsPanel.add(joinButton);
+        roomButtonsPanel.add(leaveButton);
+        roomButtonsPanel.add(createButton);
+        roomButtonsPanel.add(updateButton);
+
+        roomPanel.add(roomControlsPanel, BorderLayout.NORTH);
+        roomPanel.add(roomButtonsPanel, BorderLayout.SOUTH);
+    
+        // --- Painel Central (Chat) ---
+        JPanel chatPanel = new JPanel(new BorderLayout());
+        chatPanel.setBorder(BorderFactory.createTitledBorder("Mensagens"));
+        
+        // Área de mensagens
+        chatArea = new JTextArea();
+        chatArea.setEditable(false);
+        JScrollPane chatScrollPane = new JScrollPane(chatArea);
+        chatPanel.add(chatScrollPane, BorderLayout.CENTER);
+        
+        // Área de envio de mensagens
+        JPanel messagePanel = new JPanel(new BorderLayout());
+        messageField = new JTextField();
+        sendButton = new JButton("Enviar");
+        sendButton.addActionListener(e -> sendMessage());
+        
+        messagePanel.add(messageField, BorderLayout.CENTER);
+        messagePanel.add(sendButton, BorderLayout.EAST);
+        chatPanel.add(messagePanel, BorderLayout.SOUTH);
+    
+        mainSplitPane.setLeftComponent(roomPanel);
+        mainSplitPane.setRightComponent(chatPanel);
+        frame.add(mainSplitPane, BorderLayout.CENTER);
+    
         frame.setVisible(true);
     }
+    
     
     private void connectToServer() {
         try {
@@ -97,6 +130,7 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
                 currentRoom = (IRoomChat) Naming.lookup("rmi://localhost:2020/" + selectedRoom);
                 currentRoom.joinRoom(userName, this);
                 chatArea.append("Você entrou na sala " + selectedRoom + "\n");
+                currentRoomLabel.setText(selectedRoom);
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(frame, "Erro ao entrar na sala: " + e.getMessage());
             }
@@ -145,17 +179,13 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
                 currentRoom.leaveRoom(userName);
                 chatArea.append("Você saiu da sala\n");
                 currentRoom = null;
+                currentRoomLabel.setText("--");
             } catch (RemoteException e) {
                 JOptionPane.showMessageDialog(frame, "Erro ao sair da sala: " + e.getMessage());
             }
         }
     }
-    
 
-    
-
-
-    
     public static void main(String[] args) {
         String userName = JOptionPane.showInputDialog("Digite seu nome de usuário:");
         if (userName != null && !userName.isEmpty()) {

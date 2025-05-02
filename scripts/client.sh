@@ -1,0 +1,1 @@
+java -cp build/jars/UserChat.jar:build/jars/ServerChat.jar client.UserChat
