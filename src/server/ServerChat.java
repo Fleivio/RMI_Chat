@@ -81,9 +81,9 @@ public class ServerChat extends UnicastRemoteObject implements IServerChat {
                 IRoomChat room = roomList.get(selectedRoom);
                 room.closeRoom();
                 roomList.remove(selectedRoom);
-                Naming.unbind(selectedRoom);
-                logMessage("Sala " + selectedRoom + " fechada com sucesso.");
+                Naming.unbind("rmi://localhost:2020/" + selectedRoom);
                 updateRoomComboBox();
+                logMessage("Sala " + selectedRoom + " fechada com sucesso.");
             } catch (Exception e) {
                 logMessage("Erro ao fechar sala " + selectedRoom + ": " + e.getMessage());
             }
