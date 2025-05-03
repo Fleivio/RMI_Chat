@@ -131,9 +131,11 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
                 currentRoom.joinRoom(userName, this);
                 chatArea.append("Você entrou na sala " + selectedRoom + "\n");
                 currentRoomLabel.setText(selectedRoom);
+            } catch (RemoteException e) {
+                JOptionPane.showMessageDialog(frame, e.detail);
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(frame, "Erro ao entrar na sala: " + e.getMessage());
-            }
+                JOptionPane.showMessageDialog(frame, e.getMessage());
+            } 
         }
     }
 
@@ -145,7 +147,7 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
                 server.createRoom(roomName);
                 updateRoomList();
             } catch (RemoteException e) {
-                JOptionPane.showMessageDialog(frame, "Erro ao criar sala: " + e.getMessage());
+                JOptionPane.showMessageDialog(frame, e.detail);
             }
         }
     }

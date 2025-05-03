@@ -97,18 +97,20 @@ public class ServerChat extends UnicastRemoteObject implements IServerChat {
     }
 
     public void createRoom(String roomName) throws RemoteException {
-    if (!roomList.containsKey(roomName)) {
-        try {
-            IRoomChat room = new RoomChat(roomName);
-            roomList.put(roomName, room);
-            Naming.rebind("rmi://localhost:2020/" + roomName, room);
-            System.out.println("Sala " + roomName + " criada com sucesso.");
-        } catch (MalformedURLException e) {
-            System.err.println("Erro no URL da sala: " + e.getMessage());
-            throw new RemoteException("Erro ao criar sala: URL inválido", e);
+        if (!roomList.containsKey(roomName)) {
+            try {
+                IRoomChat room = new RoomChat(roomName);
+                roomList.put(roomName, room);
+                Naming.rebind("rmi://localhost:2020/" + roomName, room);
+                System.out.println("Sala " + roomName + " criada com sucesso.");
+            } catch (MalformedURLException e) {
+                System.err.println("Erro no URL da sala: " + e.getMessage());
+                throw new RemoteException("Erro ao criar sala: URL inválido", e);
+            }
+        } else {
+            throw new RemoteException("Erro: Já existe uma sala chamada '" + roomName + "' no servidor.");
         }
     }
-}
     
     public static void main(String[] args) {
         try {

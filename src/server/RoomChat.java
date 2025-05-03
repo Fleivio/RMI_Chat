@@ -23,7 +23,6 @@ public class RoomChat extends UnicastRemoteObject implements IRoomChat {
             try {
                 entry.getValue().deliverMsg(usrName, msg);
             } catch (RemoteException e) {
-                // Usuário pode ter saído sem notificar
                 System.err.println("Erro ao enviar mensagem para " + entry.getKey());
             }
         }
@@ -33,6 +32,8 @@ public class RoomChat extends UnicastRemoteObject implements IRoomChat {
         if (!userList.containsKey(userName)) {
             userList.put(userName, user);
             sendMsg("Sistema", userName + " entrou na sala.");
+        } else {
+            throw new RemoteException("Erro: O nome de usuário '" + userName + "' já está em uso nesta sala.");
         }
     }
     
