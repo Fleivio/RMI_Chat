@@ -1,4 +1,4 @@
 ./scripts/build.sh
-./scripts/server.sh &
-./scripts/client.sh &
-./scripts/client.sh &
+./server.sh &
+./client.sh $1 &
+./client.sh $1 &
