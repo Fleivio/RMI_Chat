@@ -15,12 +15,8 @@ public class RoomChat extends UnicastRemoteObject implements IRoomChat {
     
     // RFA 10
     public void sendMsg(String usrName, String msg) throws RemoteException {
-        for (Map.Entry<String, IUserChat> entry : userList.entrySet()) {
-            try {
-                entry.getValue().deliverMsg(usrName, msg);
-            } catch (RemoteException e) {
-                System.err.println("Erro ao enviar mensagem para " + entry.getKey());
-            }
+        for (IUserChat user : userList.values()) {
+            user.deliverMsg(usrName, msg);
         }
     }
     
