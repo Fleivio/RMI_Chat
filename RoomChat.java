@@ -1,11 +1,7 @@
-package server;
-
 import java.rmi.*;
 import java.rmi.server.*;
 import java.util.HashMap;
 import java.util.Map;
-
-import interfaces.*;
 
 public class RoomChat extends UnicastRemoteObject implements IRoomChat {
     private String roomName;

@@ -1,0 +1,1 @@
+javac --release 17 -d ./build *.java

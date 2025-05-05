@@ -1,13 +1,9 @@
-package client;
-
 import java.rmi.*;
 import java.rmi.server.*;
 import java.util.ArrayList;
 import javax.swing.*;
+
 import java.awt.*;
-
-import interfaces.*;
-
 
 public class UserChat extends UnicastRemoteObject implements IUserChat {
     private String userName;
@@ -38,15 +34,12 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
         frame.setSize(700, 500);
         frame.setLayout(new BorderLayout());
     
-        // Painel principal dividido em áreas
         JSplitPane mainSplitPane = new JSplitPane();
         mainSplitPane.setDividerLocation(200);
     
-        // --- Painel Esquerdo (Salas) ---
         JPanel roomPanel = new JPanel(new BorderLayout());
         roomPanel.setBorder(BorderFactory.createTitledBorder("Salas de Chat"));
         
-        // Componentes de salas
         roomList = new JComboBox<>();
         
         JPanel roomControlsPanel = new JPanel(new GridLayout(4, 1, 5, 5));
@@ -77,17 +70,14 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
         roomPanel.add(roomControlsPanel, BorderLayout.NORTH);
         roomPanel.add(roomButtonsPanel, BorderLayout.SOUTH);
     
-        // --- Painel Central (Chat) ---
         JPanel chatPanel = new JPanel(new BorderLayout());
         chatPanel.setBorder(BorderFactory.createTitledBorder("Mensagens"));
         
-        // Área de mensagens
         chatArea = new JTextArea();
         chatArea.setEditable(false);
         JScrollPane chatScrollPane = new JScrollPane(chatArea);
         chatPanel.add(chatScrollPane, BorderLayout.CENTER);
         
-        // Área de envio de mensagens
         JPanel messagePanel = new JPanel(new BorderLayout());
         messageField = new JTextField();
         sendButton = new JButton("Enviar");
@@ -108,7 +98,7 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
     private void connectToServer() {
         try {
             server = (IServerChat) Naming.lookup("rmi://" + serverIP + ":2020/Servidor");
-            updateRoomList(); // RFA 5
+            updateRoomList();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(frame, "Erro ao conectar ao servidor: " + e.getMessage());
         }
@@ -126,12 +116,11 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
         }
     }
     
-    // RFA 6
     private void joinRoom() {
         String selectedRoom = (String) roomList.getSelectedItem();
         if (selectedRoom != null) {
             try {
-                currentRoom = (IRoomChat) Naming.lookup("rmi://" + serverIP + ":2020/" + selectedRoom);
+                currentRoom = (IRoomChat) Naming.lookup("rmi://" + serverIP + ":2020/" +  selectedRoom);
                 currentRoom.joinRoom(userName, this);
                 chatArea.append("Você entrou na sala " + selectedRoom + "\n");
                 currentRoomLabel.setText(selectedRoom);
@@ -143,7 +132,6 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
         }
     }
 
-    // RFA 7
     private void createRoom() {
         String roomName = JOptionPane.showInputDialog(frame, "Digite o nome da nova sala:");
         if (roomName != null && !roomName.isEmpty()) {
@@ -156,7 +144,6 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
         }
     }
 
-    // RFA 8
     private void sendMessage() {
         if (currentRoom != null) {
             String message = messageField.getText();
@@ -171,14 +158,12 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
         }
     } 
 
-    // RFA 9
     public void deliverMsg(String senderName, String msg) throws RemoteException {
         SwingUtilities.invokeLater(() -> {
             chatArea.append(senderName + ": " + msg + "\n");
         });
     }
 
-    // RFA 11
     private void leaveRoom() {
         if (currentRoom != null) {
             try {
