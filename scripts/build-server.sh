@@ -1,5 +1,3 @@
-#!/bin/bash
-
 echo "Compilando servidor..."
 javac -d build/classes \
     -cp build/classes \

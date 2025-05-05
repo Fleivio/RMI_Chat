@@ -1,5 +1,3 @@
-#!/bin/bash
-
 echo "Compilando interfaces..."
 javac -d build/classes src/interfaces/*.java --release 17
 

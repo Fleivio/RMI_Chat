@@ -1,6 +1,3 @@
-#!/bin/bash
-
-# Compila o cliente e suas dependências
 echo "Compilando cliente..."
 javac -d build/classes \
     -cp build/classes \

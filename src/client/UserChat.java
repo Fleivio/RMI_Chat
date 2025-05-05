@@ -14,6 +14,8 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
     private IServerChat server;
     private IRoomChat currentRoom;
 
+    private String serverIP;
+
     private JFrame frame;
     private JTextArea chatArea;
     private JLabel currentRoomLabel;
@@ -21,9 +23,11 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
     private JComboBox<String> roomList;
     private JButton joinButton, leaveButton, sendButton, createButton, updateButton;
     
-    public UserChat(String userName) throws RemoteException {
+    public UserChat(String userName, String ip) throws RemoteException {
         super();
         this.userName = userName;
+        this.serverIP = ip;
+        System.out.println("Conectando no servidor ip:" + ip);
         setupGUI();
         connectToServer();
     }
@@ -103,7 +107,7 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
     
     private void connectToServer() {
         try {
-            server = (IServerChat) Naming.lookup("rmi://localhost:2020/Servidor");
+            server = (IServerChat) Naming.lookup("rmi://" + serverIP + ":2020/Servidor");
             updateRoomList(); // RFA 5
         } catch (Exception e) {
             JOptionPane.showMessageDialog(frame, "Erro ao conectar ao servidor: " + e.getMessage());
@@ -127,7 +131,7 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
         String selectedRoom = (String) roomList.getSelectedItem();
         if (selectedRoom != null) {
             try {
-                currentRoom = (IRoomChat) Naming.lookup("rmi://localhost:2020/" + selectedRoom);
+                currentRoom = (IRoomChat) Naming.lookup("rmi://" + serverIP + ":2020/" + selectedRoom);
                 currentRoom.joinRoom(userName, this);
                 chatArea.append("Você entrou na sala " + selectedRoom + "\n");
                 currentRoomLabel.setText(selectedRoom);
@@ -192,7 +196,7 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
         String userName = JOptionPane.showInputDialog("Digite seu nome de usuário:");
         if (userName != null && !userName.isEmpty()) {
             try {
-                new UserChat(userName);
+                new UserChat(userName, args[0]);
             } catch (RemoteException e) {
                 System.err.println("Erro ao criar cliente: " + e.getMessage());
             }

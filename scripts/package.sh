@@ -1,7 +1,3 @@
-#!/bin/bash
-
-echo "Empacotando aplicação..."
-
 jar cvf build/jars/ServerChat.jar \
     -C build/classes interfaces \
     -C build/classes server
