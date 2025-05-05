@@ -8,6 +8,8 @@ import java.net.MalformedURLException;
 
 public class ServerChat extends UnicastRemoteObject implements IServerChat {
     private Map<String, IRoomChat> roomList;
+    private static Registry registry;
+
     private JFrame frame;
     private JTextArea logArea;
     private JComboBox<String> roomComboBox;
@@ -46,7 +48,7 @@ public class ServerChat extends UnicastRemoteObject implements IServerChat {
         
         // Botão para atualizar lista
         JButton refreshButton = new JButton("Atualizar");
-        refreshButton.addActionListener(e -> updateRoomComboBox());
+        refreshButton.addActionListener(e -> updateRoomList());
         controlPanel.add(refreshButton);
         
         mainPanel.add(controlPanel, BorderLayout.SOUTH);
@@ -62,7 +64,7 @@ public class ServerChat extends UnicastRemoteObject implements IServerChat {
         });
     }
     
-    private void updateRoomComboBox() {
+    private void updateRoomList() {
         SwingUtilities.invokeLater(() -> {
             roomComboBox.removeAllItems();
             for (String room : roomList.keySet()) {
@@ -78,8 +80,9 @@ public class ServerChat extends UnicastRemoteObject implements IServerChat {
                 IRoomChat room = roomList.get(selectedRoom);
                 room.closeRoom();
                 roomList.remove(selectedRoom);
-                Naming.unbind("rmi://localhost:2020/" + selectedRoom);
-                updateRoomComboBox();
+                registry.unbind(selectedRoom);
+                updateRoomList();
+
                 logMessage("Sala " + selectedRoom + " fechada com sucesso.");
             } catch (Exception e) {
                 logMessage("Erro ao fechar sala " + selectedRoom + ": " + e.getMessage());
@@ -98,9 +101,10 @@ public class ServerChat extends UnicastRemoteObject implements IServerChat {
             try {
                 IRoomChat room = new RoomChat(roomName);
                 roomList.put(roomName, room);
-                Naming.rebind("rmi://localhost:2020/" + roomName, room);
+                registry.rebind(roomName, room);
+                updateRoomList();
                 System.out.println("Sala " + roomName + " criada com sucesso.");
-            } catch (MalformedURLException e) {
+            } catch (Exception e) {
                 System.err.println("Erro no URL da sala: " + e.getMessage());
                 throw new RemoteException("Erro ao criar sala: URL inválido", e);
             }
@@ -111,9 +115,9 @@ public class ServerChat extends UnicastRemoteObject implements IServerChat {
     
     public static void main(String[] args) {
         try {
-            LocateRegistry.createRegistry(2020);
-            ServerChat server = new ServerChat();
-            Naming.rebind("rmi://localhost:2020/Servidor", server);
+            registry = LocateRegistry.createRegistry(2020);
+            IServerChat server = new ServerChat();
+            registry.rebind("Servidor", server);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "Erro ao iniciar servidor: " + e.getMessage());
             e.printStackTrace();

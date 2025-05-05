@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class RoomChat extends UnicastRemoteObject implements IRoomChat {
     private String roomName;
-    private Map<String, IUserChat> userList; // RFA 4
+    private Map<String, IUserChat> userList;
     
     public RoomChat(String roomName) throws RemoteException {
         super();
@@ -44,7 +44,6 @@ public class RoomChat extends UnicastRemoteObject implements IRoomChat {
         return roomName;
     }
     
-    // RFA 10
     public void closeRoom() throws RemoteException {
         if (!userList.isEmpty()) {
             for (Map.Entry<String, IUserChat> entry : userList.entrySet()) {

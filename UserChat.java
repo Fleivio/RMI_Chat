@@ -1,4 +1,5 @@
 import java.rmi.*;
+import java.rmi.registry.LocateRegistry;
 import java.rmi.server.*;
 import java.util.ArrayList;
 import javax.swing.*;
@@ -11,6 +12,7 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
     private IRoomChat currentRoom;
 
     private String serverIP;
+    private int port;
 
     private JFrame frame;
     private JTextArea chatArea;
@@ -23,6 +25,7 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
         super();
         this.userName = userName;
         this.serverIP = ip;
+        this.port = 2020;
         System.out.println("Conectando no servidor ip:" + ip);
         setupGUI();
         connectToServer();
@@ -97,7 +100,7 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
     
     private void connectToServer() {
         try {
-            server = (IServerChat) Naming.lookup("rmi://" + serverIP + ":2020/Servidor");
+            server = (IServerChat) LocateRegistry.getRegistry(serverIP, port).lookup("Servidor");
             updateRoomList();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(frame, "Erro ao conectar ao servidor: " + e.getMessage());
@@ -120,7 +123,8 @@ public class UserChat extends UnicastRemoteObject implements IUserChat {
         String selectedRoom = (String) roomList.getSelectedItem();
         if (selectedRoom != null) {
             try {
-                currentRoom = (IRoomChat) Naming.lookup("rmi://" + serverIP + ":2020/" +  selectedRoom);
+                currentRoom = (IRoomChat) LocateRegistry.getRegistry(serverIP, port).lookup(selectedRoom);
+            
                 currentRoom.joinRoom(userName, this);
                 chatArea.append("Você entrou na sala " + selectedRoom + "\n");
                 currentRoomLabel.setText(selectedRoom);
