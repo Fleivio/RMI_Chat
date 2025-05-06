@@ -115,6 +115,7 @@ public class ServerChat extends UnicastRemoteObject implements IServerChat {
     
     public static void main(String[] args) {
         try {
+            System.setProperty("java.rmi.server.hostname", args[0]);
             registry = LocateRegistry.createRegistry(2020);
             IServerChat server = new ServerChat();
             registry.rebind("Servidor", server);

@@ -1,1 +1,1 @@
-java ServerChat
+java ServerChat $1
